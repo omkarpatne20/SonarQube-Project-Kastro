@@ -1,5 +1,19 @@
-FROM eclipse-temurin:21-jdk-jammy
+FROM eclipse-temurin:21-jdk
+
 WORKDIR /app
-COPY target/spotify-app-1.0.0.jar /app/spotify-app.jar
-EXPOSE 5555
-ENTRYPOINT ["java", "-jar", "spotify-app.jar"]
+
+COPY target/*.jar app.jar
+
+# Create non-root user
+RUN addgroup --system appgroup && \
+    adduser --system appuser --ingroup appgroup
+
+# Change ownership
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
+
+EXPOSE 8080
+
+ENTRYPOINT ["java","-jar","app.jar"]
